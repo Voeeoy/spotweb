@@ -128,6 +128,22 @@ echo "</th>";
 								<tr><th> <?php echo _('Size'); ?> </th> <td> <?php echo $tplHelper->format_size($spot['filesize']); ?> </td> </tr>
 								<tr><td class="break" colspan="2">&nbsp;</td> </tr>
 								<tr><th> <?php echo _('Website'); ?> </th> <td> <a href='<?php echo $spot['website']; ?>'><?php echo $spot['website'];?></a> </td> </tr>
+								<tr><th> <?php echo _('IMDB'); ?> </th> <td>
+									<div class="imdb-info">
+										<img src='templates/we1rdo/img/loading.gif' />
+										<div style="display:none;">
+											<div class="title"><strong><?php echo _('Title'); ?>: </strong><span></span></div>
+											<div class="rating"><strong><?php echo _('Rating'); ?>: </strong><span></span></div>
+											<div class="genre"><strong><?php echo _('Genre'); ?>: </strong><span></span></div>
+											<div class="released"><strong><?php echo _('Released'); ?>: </strong><span></span></div>
+											<div class="director"><strong><?php echo _('Director'); ?>: </strong><span></span></div>
+											<div class="actors"><strong><?php echo _('Actors'); ?>: </strong><span></span></div>
+											<div class="rated"><strong><?php echo _('Rated'); ?>: </strong><span></span></div>
+											<div class="plot"><strong><?php echo _('Plot'); ?>: </strong><span></span></div>
+											<div class="link"><strong><?php echo _('Link'); ?>: </strong><span><a href="#" target="_blank" alt=""></a></span></div>
+										</div>
+									</div>
+								</td></tr>
 								<tr> <td class="break" colspan="2">&nbsp;</td> </tr>
 								<tr> <th> <?php echo _('Sender'); ?> </th> <td> <a href="<?php echo $tplHelper->makePosterUrl($spot); ?>" title='<?php echo sprintf(_('Find spots from %s'), $spot['poster']); ?>'><?php echo $spot['poster']; ?></a>
 								<?php if (!empty($spot['spotterid'])) { ?> (<a href="<?php echo $tplHelper->makeSpotterIdUrl($spot); ?>" title='<?php echo sprintf(_('Find spots from %s'), $spot['spotterid']);?>'><?php echo $spot['spotterid']; ?></a>)<?php } ?>

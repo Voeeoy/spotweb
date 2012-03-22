@@ -109,6 +109,41 @@ function openSpot(id,url) {
 			loadComments(messageid,spotweb_retrieve_commentsperpage,'0');
 		} // if
 		loadSpotImage();
+		
+		var title = $('.spotinfo .title').html();
+		$.getJSON('http://www.imdbapi.com/?t=' + title + '&callback=?' ,
+		  function(data){
+			if (data.Response == 'True') {
+				console.log(data);
+				$('.imdb-info .title span').html(data.Title);
+				$('.imdb-info .rating span').html(data.Rating);
+				$('.imdb-info .genre span').html(data.Genre);
+				$('.imdb-info .released span').html(data.Released);
+				$('.imdb-info .director span').html(data.Director);
+				$('.imdb-info .actors span').html(data.Actors);
+				$('.imdb-info .rated span').html(data.Rated);
+				$('.imdb-info .plot span').html(data.Plot);
+				$('.imdb-info .link a').attr('href','http://www.imdb.com/title/'+data.ID);
+				$('.imdb-info .link a').html('http://www.imdb.com/title/'+data.ID);
+				for (var prop in data) {
+				 if (data[prop] == 'N/A') {
+					$('.imdb-info .'+prop.toLowerCase()).remove();
+				 }
+			    }
+				
+				$('.imdb-info .plot span').html(data.Plot);
+				//FIXME: IMDB has hotlink protection or something?
+				/*if (data.Poster != 'N/A') {
+					var poster = $('.spotinfoimage').clone();
+					$(poster).attr('src',data.Poster);
+					$('.spotinfoimage').after(poster);
+					$(poster).fadeIn();
+				}*/
+				$('.imdb-info>div').fadeIn(750);
+			}
+			$('.imdb-info>img').remove();
+		  }
+		);
 	});
 }
 
