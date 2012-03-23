@@ -115,8 +115,11 @@ function openSpot(id,url) {
 		var regYearNoParentheses = new RegExp("^.*([0-9]{4})\\b",'i');
 		var regSeasonEpisode = new RegExp("^(.+?) (?:S\\d+[EA]\\d+)\\b",'i');
 		var regSeason = new RegExp("(^.*)(Seizoen|Season) ?\\d+",'i');
+		var reg3D = new RegExp("^(^.*) 3D\\b");
 		
 		var test = regYearParentheses.exec(title);
+		
+		// TODO rewrite this ugly tree (while == null loop over array)
 		if (test != null) {
 			title = test; 
 		} else {
@@ -131,6 +134,11 @@ function openSpot(id,url) {
 					test = regSeason.exec(title);
 					if (test != null) {
 						title = test[1];
+					} else {
+						test = reg3D.exec(title);
+						if (test != null) {
+							title = test[1];
+						}
 					}
 				}
 			}
