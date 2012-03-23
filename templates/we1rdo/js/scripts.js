@@ -111,10 +111,33 @@ function openSpot(id,url) {
 		loadSpotImage();
 		
 		var title = $('.spotinfo .title').html();
+		var regYearParentheses = new RegExp("^.*\\(([0-9]{4})\\)",'i');
+		var regYearNoParentheses = new RegExp("^.*([0-9]{4})\\b",'i');
+		var regSeasonEpisode = new RegExp("^(.+?) (?:S\\d+[EA]\\d+)\\b",'i');
+		var regSeason = new RegExp("(^.*)(Seizoen|Season) ?\\d+",'i');
+		
+		var test = regYearParentheses.exec(title);
+		if (test != null) {
+			title = test; 
+		} else {
+			test = regYearNoParentheses.exec(title)
+			if (test != null) {
+				title = test; 
+			} else {
+				test = regSeasonEpisode.exec(title)
+				if (test != null) {
+					title = test[1];
+				} else {
+					test = regSeason.exec(title);
+					if (test != null) {
+						title = test[1];
+					}
+				}
+			}
+		}
 		$.getJSON('http://www.imdbapi.com/?t=' + title + '&callback=?' ,
 		  function(data){
 			if (data.Response == 'True') {
-				console.log(data);
 				$('.imdb-info .title span').html(data.Title);
 				$('.imdb-info .rating span').html(data.Rating);
 				$('.imdb-info .genre span').html(data.Genre);
