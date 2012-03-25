@@ -432,7 +432,7 @@ function searchIMDBapidotcom(imdbID) {
 				$('.spotinfoimage').after(poster);
 				$(poster).fadeIn();
 			}*/
-			$('.imdb-info .imdbapidotcom').fadeIn(750);
+			$('.imdb-info .imdb-info>div>div').fadeIn(750);
 		}
 		$('.imdb-info-loading').remove();
 	  }
