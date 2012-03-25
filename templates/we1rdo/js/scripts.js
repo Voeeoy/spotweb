@@ -409,6 +409,7 @@ function searchIMDBapidotcom(imdbID) {
 	
 	function cb(data) {
 		if (data.Response == 'True') {
+			
 			$('.imdb-info .title span').html(data.Title);
 			$('.imdb-info .rating span').html(data.Rating);
 			$('.imdb-info .genre span').html(data.Genre);
@@ -419,6 +420,7 @@ function searchIMDBapidotcom(imdbID) {
 			$('.imdb-info .plot p').html(data.Plot);
 			$('.imdb-info .link a').attr('href','http://www.imdb.com/title/'+data.ID);
 			$('.imdb-info .link a').html('http://www.imdb.com/title/'+data.ID);
+			
 			for (var prop in data) {
 			 if (data[prop] == 'N/A') {
 				$('.imdb-info .'+prop.toLowerCase()).remove();
@@ -432,7 +434,7 @@ function searchIMDBapidotcom(imdbID) {
 				$('.spotinfoimage').after(poster);
 				$(poster).fadeIn();
 			}*/
-			$('.imdb-info .imdb-info>div>div').fadeIn(750);
+			$('.imdb-info>div>div').fadeIn(750);
 		}
 		$('.imdb-info-loading').remove();
 	  }
