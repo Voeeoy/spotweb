@@ -109,6 +109,10 @@ function openSpot(id,url) {
 			loadComments(messageid,spotweb_retrieve_commentsperpage,'0');
 		} // if
 		loadSpotImage();
+		
+		if ($('.imdb-info').length > 0) {
+			loadIMDB();
+		}
 	});
 }
 
@@ -347,6 +351,116 @@ function loadComments(messageid,perpage,pagenr) {
 		}
 	});
 	$("a.closeDetails").click(function() { xhr.abort() });
+}
+
+// faster API, but much less data availible, and only for precise title names (which we don't always have)
+function searchDeanClatWorthAPI(callback) {
+	var reg = new RegExp("^(.+)( \\((\\d\\d\\d\\d)\\))",'i'); // [0][1]Travellers[1] ([2]2011[2])[0]
+	var t = $('.spotinfo .title').html();
+	var parts = reg.exec(t);
+	if (parts == null) {
+		regExp = new RegExp("^(.*) ([0-9]{4})\\b",'i'); // [0][1]Travellers[1] [2]2011[2][0]
+		parts = regExp.exec(t);
+		if (parts == null) {
+			callback(null);
+			return null;
+		}
+	}
+	var t = parts[1];
+	var y = parts[3];
+	window.imdbapi = function(data) {
+		if (data.code == 1) { // movie not found
+			callback (null)
+		} else {
+			callback(data);
+		}
+	};
+	var q = encodeURIComponent(t);
+	q = q.replace(/%20/g,'+');
+	q = q.replace(/%2F/g,'+'); // need to replace slashes in the title because of failing API
+	
+	var xhr = $.getJSON('http://www.deanclatworthy.com/imdb/?q='+q+'&type=jsonp&yg=0&year='+y+'&callback=?',function(){console.log('test')});
+	return xhr;
+}
+
+// very slow, but good info
+function searchIMDBapidotcom(imdbID) {
+	var title = $('.spotinfo .title').html();
+	var regExps = [										// MATCHES:					IGNORES:
+		new RegExp("^(.+\\(([0-9]{4})\\))",'i'), 		// Travellers (2011)		 AC3 DD2.0 Retail NL Subs
+		new RegExp("^(.+([0-9]{4})\\b)",'i'),			// Travellers 2011 			 AC3 DD2.0 Retail NL Subs
+		new RegExp("^(.+?) (?:S\\d+[EA]\\d+)\\b",'i'),	// Travellers 				 S12E01 AC3 DD2.0 Retail NL Subs
+		new RegExp("(^.+)(Seizoen|Season) ?\\d+",'i'),	// Travellers 				 Season 1 AC3 DD2.0 Retail NL Subs
+		new RegExp("^(^.+) 3D\\b"),						// Travellers  				 3D (2011) AC3 DD2.0 Retail NL Subs
+		new RegExp("(^.+)(?:720p|1080p)")				// Travellers  				 1080p (2011) AC3 DD2.0 Retail NL Subs
+	];
+	for (reg in regExps) {
+		result = regExps[reg].exec(title);
+		if (result) {
+			title = result[1];
+			break;
+		}
+	}
+	
+	var xhrIMDB;
+	if (imdbID) {
+		// i think it's slightly faster to use an ID, and since it seems we already have one..
+		xhrIMDB = $.getJSON('http://www.imdbapi.com/?i=' + imdbID + '&callback=?' , cb );
+	} else {
+		xhrIMDB = $.getJSON('http://www.imdbapi.com/?t=' + title + '&callback=?' , cb );
+	}
+	
+	function cb(data) {
+		if (data.Response == 'True') {
+			var title = data.Year != 'N/A' ? data.Title + ' ('+data.Year+')' : data.Title;
+			$('.imdb-info .title span').html(title);
+			$('.imdb-info .rating span').html(data.imdbRating);
+			$('.imdb-info .genre span').html(data.Genre);
+			$('.imdb-info .released span').html(data.Released);
+			$('.imdb-info .director span').html(data.Director);
+			$('.imdb-info .actors span').html(data.Actors);
+			$('.imdb-info .rated span').html(data.Rated);
+			$('.imdb-info .plot span').html(data.Plot);
+			$('.imdb-info .link a').attr('href','http://www.imdb.com/title/'+data.imdbID);
+			$('.imdb-info .link a').html('http://www.imdb.com/title/'+data.imdbID);
+			
+			for (var prop in data) {
+			 if (data[prop] == 'N/A') {
+				$('.imdb-info .'+prop.toLowerCase()).remove();
+			 }
+			}
+			
+			//FIXME: IMDB has hotlink protection or something?
+			/*if (data.Poster != 'N/A') {
+				var poster = $('.spotinfoimage').clone(false);
+				$(poster).attr('src',data.Poster);
+				$('.spotinfoimage').after(poster);
+				$(poster).width($('.spotinfoimage').width());
+				$(poster).height($('.spotinfoimage').height());
+				$(poster).removeClass('spotinfoimage');
+				$(poster).fadeIn();
+			}*/
+			$('.imdb-info>div>div').fadeIn(750);
+		}
+		$('.imdb-info-loading').remove();
+	  }
+	$("a.closeDetails").click(function() { xhrIMDB.abort() });
+}
+
+function loadIMDB() {
+	searchDeanClatWorthAPI(function(data){
+		var imdbID = null;
+		if (data != null) {
+			var title = data.year != 'n/a' ? data.title + ' ('+data.year+')' : data.title;
+			$('.imdb-info .title span').html(title);
+			$('.imdb-info .rating span').html(data.rating);
+			$('.imdb-info .genre span').html(data.genres);
+			$('.imdb-info .link a').html(data.imdburl);
+			$('.imdb-info .deanclatworth').fadeIn(750);
+			imdbID = data.imdbid;
+		}
+		searchIMDBapidotcom(imdbID);
+	});
 }
 
 function postReportForm() {
